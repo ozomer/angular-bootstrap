@@ -1,0 +1,86 @@
+<!doctype html>
+<html class="no-js" lang="en" ng-app="docs">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>AngularWidgets - Bootstrap</title>
+    <meta name="description" content="AngularJS directives for Twitter Bootstrap">
+
+    <!-- Sets initial viewport load and disables zooming  -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- Makes your prototype chrome-less once bookmarked to your phone's home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- Set a shorter title for iOS6 devices when saved to home screen -->
+    <meta name="apple-mobile-web-app-title" content="BootstrapSandbox">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <!-- Prevent flickering of AngularJS compiling elements -->
+    <style type="text/css">[ng\:cloak], [ng-cloak], .ng-cloak { display: none !important; }</style>
+
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css">
+
+    <!-- build:css styles/docs.min.css -->
+    <link rel="stylesheet" href="styles/docs.css">
+    <!-- endbuild -->
+
+  </head>
+
+  <body ontouchstart ng-controller="MainCtrl" wg-scrollspy data-target=".bs-sidebar">
+
+    <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner" ng-include="'views/layout/navbar.html'"></header>
+
+    <header class="bs-header" ng-include="'views/layout/header.html'"></header>
+
+    <div class="container bs-docs-container" ng-include="'views/layout/container.html'"></div>
+
+    <footer class="bs-footer" ng-include="'views/layout/footer.html'"></footer>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+      // var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+      // (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      // g.src='//www.google-analytics.com/ga.js';
+      // s.parentNode.insertBefore(g,s)}(document,'script'));
+    </script>
+
+    <!--[if lt IE 7]>
+      <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+    <![endif]-->
+
+    <!--[if lt IE 9]>
+      <script src="bower_components/es5-shim/es5-shim.js"></script>
+      <script src="bower_components/json3/lib/json3.min.js"></script>
+    <![endif]-->
+
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/fastclick/lib/fastclick.js"></script>
+
+    <!-- build:js bower_components/angular-bootstrap/dist/angular-bootstrap.min.js -->
+    <script src="bower_components/angular-bootstrap/src/common.js"></script>
+    <script src="bower_components/angular-bootstrap/src/jquery/jquery.js"></script>
+    <script src="bower_components/angular-bootstrap/src/jquery/dimensions.js"></script>
+    <script src="bower_components/angular-bootstrap/src/jquery/traversing.js"></script>
+    <script src="bower_components/angular-bootstrap/src/scrollspy/scrollspy.js"></script>
+    <script src="bower_components/angular-bootstrap/src/affix/affix.js"></script>
+    <script src="bower_components/angular-bootstrap/src/navbar/navbar.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js scripts/docs.min.js -->
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/components.js"></script>
+    <script src="scripts/controllers/javascript.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js scripts/templates.min.js -->
+    <!-- endbuild -->
+
+  </body>
+
+</html>

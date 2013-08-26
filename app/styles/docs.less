@@ -1,0 +1,116 @@
+
+.navbar-brand {
+  padding-left: 40px;
+}
+
+html, body, .iphone {
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  a, button, input {
+    -webkit-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+  }
+}
+
+body {
+  overflow-y: scroll;
+}
+
+.bs-docs-nav {
+  z-index: 90000;
+  .navbar-nav > li > a {
+    font-weight: 600;
+  }
+}
+pre {
+  font-size: 12px;
+}
+
+
+@import "../bower_components/bootstrap-unstable/less/variables.less";
+@import "../bower_components/bootstrap-unstable/less/mixins.less";
+@import "../bower_components/bootstrap-unstable/less/utilities.less";
+
+@import "./bootstrap-docs.less";
+
+
+// @docs-color: @btn-danger-bg; // bootstrap
+@import "./animate.less";
+
+
+// @media (min-width: 945px) {
+//   .container {
+//     max-width: 905px;
+//   }
+// }
+
+
+
+// .bs-docs-main {
+//   padding-top: 40px;
+//   padding-bottom: 350px;
+// }
+
+// .component {
+//   padding-top: 40px;
+//   &:not(.active) {
+//     opacity: .4;
+//   }
+// }
+// .component-example {
+//   margin-right: -15px;
+//   margin-left: -15px;
+//   [class*="bar"] {
+//     position: relative;
+//   }
+//   &.visible-sm {
+//     margin-bottom: 15px;
+//   }
+// }
+
+
+
+
+
+pre {
+
+  /* > a markup tag name */
+  .tag .title {
+    color: #2f6f9f;
+    // color: saturate(darken(@docs-color, 5%), 5%);
+  }
+
+  /* > a markup attribute name */
+  .tag .attribute {
+    color: #4f9fcf;
+    // color: spin(@docs-color, 120);
+  }
+
+  /* > a markup attribute value */
+  .tag .value {
+    color: #d44950;
+    // color: spin(@docs-color, 160);
+  }
+
+  .comment {
+    color: #999;
+  }
+
+}
+
+.bs-docs-container {
+  .popover {
+    position: relative;
+    display: block;
+    margin: 50px auto 0;
+    .popover-content {
+      padding: 0px;
+      max-height:200px;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
+
+
+
