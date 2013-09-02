@@ -1,0 +1,18 @@
+
+.animation-fade {
+  -webkit-backface-visibility: hidden;
+  -webkit-transition: opacity .2s ease;
+  transition: opacity .2s ease;
+  &.ng-enter {
+    opacity: 0;
+    &.ng-enter-active {
+      opacity: 1;
+    }
+  }
+  &.ng-leave {
+    opacity: 1;
+    &.ng-leave-active {
+      opacity: 0;
+    }
+  }
+}
