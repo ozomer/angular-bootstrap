@@ -1,0 +1,8 @@
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+*.todo
+bower_components/
+node_modules/
+docs/
+!.gitignore
