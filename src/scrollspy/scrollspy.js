@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.selector', 'ngWidgets.bootstrap.jqlite.debounce', 'ngWidgets.bootstrap.jqlite.dimensions', 'ngWidgets.bootstrap.jqlite.traversing'])
+angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.debounce', 'ngWidgets.bootstrap.jqlite.dimensions', 'ngWidgets.bootstrap.jqlite.traversing'])
 
   .provider('$scrollspy', function() {
 
