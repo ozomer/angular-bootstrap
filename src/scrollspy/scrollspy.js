@@ -14,11 +14,11 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
       offset: 10
     };
 
-    this.$get = function($window, $rootScope, selector, dimensions, traversing, debounce) {
+    this.$get = function($window, $rootScope, dimensions, traversing, debounce) {
 
       var windowEl = jqLite($window);
       var bodyEl = jqLite($window.document.body);
-      var nodeName = selector.nodeName;
+      var nodeName = traversing.nodeName;
 
       function ScrollSpyFactory(config) {
 
@@ -31,16 +31,16 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
         var scrollElement = nodeName(scrollspy[0], 'body') ? windowEl : scrollspy;
 
         // Initial private vars
-        var offsets = null,
-            targets = null,
-            activeTarget = null;
-        // var offset;
+        var offsets = [],
+            targets = [],
+            activeTarget = null,
+            offset = null;
 
         // Options: target
-        var targetSelector = options.target + ' .nav li > a';
+        var targetSelector = options.target || '.nav li > a';
 
         // Debounced refresh
-        var debouncedRefresh = debounce($scrollspy.$refreshPositions, 300);
+        var debouncedRefresh;
 
         $scrollspy.init = function() {
 
@@ -48,8 +48,9 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           scrollElement.on('scroll', this.process);
 
           // Debounce scrollspy after content loading
-          scope.$on('$viewContentLoaded', debouncedRefresh);
-          scope.$on('$includeContentLoaded', debouncedRefresh);
+          debouncedRefresh = debounce(this.$refreshPositions.bind(this), 300);
+          $rootScope.$on('$viewContentLoaded', debouncedRefresh);
+          $rootScope.$on('$includeContentLoaded', debouncedRefresh);
 
         };
 
@@ -71,13 +72,18 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           targets = [];
 
           // var offsetMethod = scrollspy[0] == window ? 'offset' : 'position'
-          var targetElements = selector.find(targetSelector, bodyEl[0]);
+          var targetElements = traversing.find(targetSelector, bodyEl[0]);
 
           slice.call(targetElements)
           .map(function(element) {
             element = jqLite(element);
             var href = element.data('target') || element.attr('href');
-            var targetElement = /^#\w/.test(href) && selector.find(href);
+            var targetElement = /^#\w/.test(href) && traversing.find(href);
+            // If href not found, activate self
+            if(!targetElement && element.attr('id')) {
+              href = element.attr('id');
+              targetElement = element;
+            }
             if(!targetElement || !targetElement.length) return null;
             return [dimensions.offset(targetElement[0]).top, href];
           })
@@ -92,10 +98,8 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
             targets.push(el[1]);
           });
 
-          // if(options.offset) {
-          //   // auto to offset of 1?
-          //   offset = isUndefined(options.offset) ? offsets.length && offsets[0] : options.offset * 1;
-          // }
+          // Add support for offset option
+          offset = options.offset === 'auto' ? offsets.length && offsets[0] : options.offset * 1;
 
         };
 
@@ -103,7 +107,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
 
           if(!offsets.length) return;
 
-          var scrollTop = scrollspy[0].scrollTop + options.offset;
+          var scrollTop = scrollspy[0].scrollTop + offset;
           var scrollHeight = scrollspy[0].scrollHeight || bodyEl[0].scrollHeight;
           // var maxScroll = scrollHeight - jqHeight(el[0]);
           // console.warn(scrollTop, scrollHeight);
@@ -116,7 +120,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           // }
           for (var i = offsets.length; i--;) {
             if(activeTarget !== targets[i] && scrollTop >= offsets[i] && (!offsets[i + 1] || scrollTop <= offsets[i + 1])) {
-              this.activate(targets[i]);
+              $scrollspy.activate(targets[i]);
             }
           }
         };
@@ -126,16 +130,22 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           // Save active target for process()
           activeTarget = target;
 
-          // Toggle active class on elements @ratchet-like implementation
-          // selector.find(options.target + ' > .active').removeClass('active');
-          // selector.find('#' + activeTarget).addClass('active');
+          var source = traversing.find(targetSelector);
+          var selectorString = targetSelector + '[data-target="' + target + '"],' + targetSelector + '[href="' + target + '"],' + '#' + target;
+          var selected = traversing.find(selectorString);
 
-          // Remove active class to navigation links
-          var source = traversing.parents(selector.find(targetSelector), '.active').removeClass('active');
+          if(selected.attr('id') === target) {
+            // Remove/Add active class to matched id
+            source.removeClass('active');
+            selected.addClass('active');
+          } else {
+            // Remove/Add active class to matched navigation links
+            traversing.parents(source, '.active').removeClass('active');
+            traversing.parents(selected, 'li').addClass('active');
+          }
 
-          // Add active class to matched navigation links
-          var selectorString = targetSelector + '[data-target="' + target + '"],' + targetSelector + '[href="' + target + '"]';
-          var active = traversing.parents(selector.find(selectorString), 'li').addClass('active');
+          // Emit activation event
+          scope.$emit('$scrollspy.activate', target);
 
         };
 
@@ -150,7 +160,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
 
   })
 
-  .directive('wgScrollspy', function($window, $location, $routeParams, $scrollspy) {
+  .directive('wgScrollspy', function($parse, $scrollspy) {
 
     var forEach = angular.forEach,
         isDefined = angular.isDefined;
@@ -168,6 +178,11 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
         scope.$on('$destroy', function() {
           options = null;
           scrollspy = null;
+        });
+
+        var fn = $parse(attr.wgScrollspy);
+        scope.$on('$scrollspy.activate', function(event, target) {
+          fn(scope, {$target:target});
         });
 
       }
