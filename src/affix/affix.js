@@ -28,22 +28,45 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
             initialOffsetTop = 0,
             affixed = null,
             unpin = null;
-
-        // Options: offsets
-        if(options.offsetTop === 'auto' || options.offsetTop[0].match(/^[-+]/)) {
-          var offsetTop = options.offsetTop;
-          options.offsetTop = dimensions.offset(element[0]).top - dimensions.css(element[0], 'marginTop', true);
-          if(offsetTop[0] === '-') {
-            options.offsetTop -= offsetTop.substr(1) * 1;
-            initialAffixTop += offsetTop.substr(1) * 1;
-          } else if(offsetTop[0] === '+') {
-            options.offsetTop += offsetTop.substr(1) * 1;
-            initialAffixTop -= offsetTop.substr(1) * 1;
+        var parent = element.parent();
+        if (options.offsetParent) {
+          if (options.offsetParent.match(/^\d+$/)) {
+            for (var i = 0; i < (options.offsetParent * 1) - 1; i++) {
+              parent = parent.parent();
+            }
+          }
+          else {
+            parent = jqLite(options.offsetParent);
           }
         }
 
-        var offsetTop = options.offsetTop ? options.offsetTop * 1 : 0,
-            offsetBottom = options.offsetBottom ? options.offsetBottom * 1 : 0;
+        // Options: offsets
+        var offsetTop = 0;
+        if(options.offsetTop) {
+          if(options.offsetTop === 'auto' || options.offsetTop.match(/^[-+]\d+$/)) {
+            initialAffixTop -= options.offsetTop * 1;
+            if(options.offsetParent) {
+              offsetTop = dimensions.offset(parent[0]).top + (options.offsetTop * 1);              
+            }
+            else {
+              offsetTop = dimensions.offset(element[0]).top - dimensions.css(element[0], 'marginTop', true) + (options.offsetTop * 1);
+            }
+          }
+          else {
+            offsetTop = options.offsetTop * 1;
+          }
+        }
+        
+        var offsetBottom = 0;
+        if(options.offsetBottom) {
+          if(options.offsetParent && options.offsetBottom.match(/^[-+]\d+$/)) {
+            // add 1 pixel due to rounding problems...
+            offsetBottom = $window.document.body.scrollHeight - (dimensions.offset(parent[0]).top + dimensions.height(parent[0])) + (options.offsetBottom * 1) + 1;
+          }
+          else {
+            offsetBottom = options.offsetBottom * 1;
+          }
+        }
 
         $affix.init = function() {
 
@@ -52,8 +75,11 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
           // Bind events
           windowEl.on('scroll', this.checkPosition);
           windowEl.on('click', this.checkPositionWithEventLoop);
+          // Both of these checkPosition() calls are necessary for the case where
+          // the user hits refresh after scrolling to the bottom of the page.
           this.checkPosition();
-
+          this.checkPositionWithEventLoop();
+          
         };
 
         $affix.destroy = function() {
@@ -84,27 +110,28 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
           if(affixed === affix) return;
           affixed = affix;
 
-          // We should unpin?
-          if(unpin) element.css('top', '');
-
           // Add proper affix class
-          element.removeClass(reset).addClass('affix' + (affix ? '-' + affix : ''));
+          element.removeClass(reset).addClass('affix' + ((affix !== 'middle') ? '-' + affix : ''));
 
           if(affix === 'top') {
             unpin = null;
-            element.css('position', 'relative');
+            element.css('position', (options.offsetParent) ? '' : 'relative');
             element.css('top', '');
           } else if(affix === 'bottom') {
-            // Calculate unpin threshold when affixed to bottom
-            unpin = position.top - scrollTop;
-            element.css('position', 'relative');
-            element.css('top', (bodyEl[0].offsetHeight - offsetBottom - elementHeight - initialOffsetTop) + 'px');
-          } else {
-            unpin = null;
-            if(initialAffixTop) {
-              element.css('position', 'fixed');
-              element.css('top', initialAffixTop + 'px');
+            if (options.offsetUnpin) {
+              unpin = -(options.offsetUnpin * 1);
             }
+            else {
+              // Calculate unpin threshold when affixed to bottom.
+              // Hopefully the browser scrolls pixel by pixel.
+              unpin = position.top - scrollTop;
+            }
+            element.css('position', (options.offsetParent) ? '' : 'relative');
+            element.css('top', (options.offsetParent) ? '' : ((bodyEl[0].offsetHeight - offsetBottom - elementHeight - initialOffsetTop) + 'px'));
+          } else { // affix === 'middle'
+            unpin = null;
+            element.css('position', 'fixed');
+            element.css('top', initialAffixTop + 'px');
           }
 
         };
@@ -119,11 +146,11 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
           if(scrollTop <= offsetTop) {
             return 'top';
           } else if(unpin !== null && (scrollTop + unpin <= position.top)) {
-            return false;
+            return 'middle';
           } else if(offsetBottom !== null && (position.top + elementHeight + initialAffixTop >= scrollHeight - offsetBottom)) {
             return 'bottom';
           } else {
-            return false;
+            return 'middle';
           }
 
         }
@@ -150,7 +177,7 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
       link: function postLink(scope, element, attr) {
 
         var options = {scope: scope, offsetTop: 'auto'};
-        forEach(['offsetTop', 'offsetBottom'], function(key) {
+        forEach(['offsetTop', 'offsetBottom', 'offsetParent', 'offsetUnpin'], function(key) {
           if(isDefined(attr[key])) options[key] = attr[key];
         });
 
