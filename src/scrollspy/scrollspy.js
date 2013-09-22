@@ -131,7 +131,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           activeTarget = target;
 
           var source = traversing.find(targetSelector);
-          var selectorString = targetSelector + '[data-target="' + target + '"],' + targetSelector + '[href="' + target + '"],' + '#' + target;
+          var selectorString = targetSelector + '[data-target="' + target + '"], ' + targetSelector + '[href="' + target + '"], ' + target;
           var selected = traversing.find(selectorString);
 
           if(selected.attr('id') === target) {
