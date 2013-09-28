@@ -48,7 +48,6 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
         $affix.updateOffsets = function() {
           if(options.offsetTop) {
             if(options.offsetTop === 'auto' || options.offsetTop.match(/^[-+]\d+$/)) {
-              initialAffixTop -= options.offsetTop * 1;
               if(options.offsetParent) {
                 offsetTop = dimensions.offset(parent[0]).top + (options.offsetTop * 1);              
               }
