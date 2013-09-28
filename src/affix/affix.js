@@ -10,7 +10,7 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
       offsetTop: 'auto'
     };
 
-    this.$get = function($window, dimensions) {
+    this.$get = function($window, $timeout, dimensions) {
 
       var windowEl = jqLite($window);
       var bodyEl = jqLite($window.document.body);
@@ -27,7 +27,12 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
             initialAffixTop = 0,
             initialOffsetTop = 0,
             affixed = null,
-            unpin = null;
+            unpin = null,
+            offsetTop = 0,
+            offsetBottom = 0;
+        if(options.offsetTop && (options.offsetTop === 'auto' || options.offsetTop.match(/^[-+]\d+$/))) {
+          initialAffixTop -= options.offsetTop * 1;
+        }
         var parent = element.parent();
         if (options.offsetParent) {
           if (options.offsetParent.match(/^\d+$/)) {
@@ -40,46 +45,46 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
           }
         }
 
-        // Options: offsets
-        var offsetTop = 0;
-        if(options.offsetTop) {
-          if(options.offsetTop === 'auto' || options.offsetTop.match(/^[-+]\d+$/)) {
-            initialAffixTop -= options.offsetTop * 1;
-            if(options.offsetParent) {
-              offsetTop = dimensions.offset(parent[0]).top + (options.offsetTop * 1);              
+        $affix.updateOffsets = function() {
+          if(options.offsetTop) {
+            if(options.offsetTop === 'auto' || options.offsetTop.match(/^[-+]\d+$/)) {
+              initialAffixTop -= options.offsetTop * 1;
+              if(options.offsetParent) {
+                offsetTop = dimensions.offset(parent[0]).top + (options.offsetTop * 1);              
+              }
+              else {
+                offsetTop = dimensions.offset(element[0]).top - dimensions.css(element[0], 'marginTop', true) + (options.offsetTop * 1);
+              }
             }
             else {
-              offsetTop = dimensions.offset(element[0]).top - dimensions.css(element[0], 'marginTop', true) + (options.offsetTop * 1);
+              offsetTop = options.offsetTop * 1;
             }
           }
-          else {
-            offsetTop = options.offsetTop * 1;
-          }
-        }
-        
-        var offsetBottom = 0;
-        if(options.offsetBottom) {
-          if(options.offsetParent && options.offsetBottom.match(/^[-+]\d+$/)) {
-            // add 1 pixel due to rounding problems...
-            offsetBottom = $window.document.body.scrollHeight - (dimensions.offset(parent[0]).top + dimensions.height(parent[0])) + (options.offsetBottom * 1) + 1;
-          }
-          else {
-            offsetBottom = options.offsetBottom * 1;
+          if(options.offsetBottom) {
+            if(options.offsetParent && options.offsetBottom.match(/^[-+]\d+$/)) {
+              // add 1 pixel due to rounding problems...
+              offsetBottom = $window.document.body.scrollHeight - (dimensions.offset(parent[0]).top + dimensions.height(parent[0])) + (options.offsetBottom * 1) + 1;
+            }
+            else {
+              offsetBottom = options.offsetBottom * 1;
+            }
           }
         }
 
         $affix.init = function() {
-
-          initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
-
+          windowEl.ready(function() {
+            // All initializations that are based on offsets and sizes should
+            // be called only after the DOM is built.
+            initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
+            $affix.updateOffsets();
+            $affix.checkPosition();
+            // The second checkPosition is needed in case the user hits refresh
+            // when he is at the bottom of the page.
+            $affix.checkPositionWithEventLoop();
+          });
           // Bind events
           windowEl.on('scroll', this.checkPosition);
           windowEl.on('click', this.checkPositionWithEventLoop);
-          // Both of these checkPosition() calls are necessary for the case where
-          // the user hits refresh after scrolling to the bottom of the page.
-          this.checkPosition();
-          this.checkPositionWithEventLoop();
-          
         };
 
         $affix.destroy = function() {
@@ -91,9 +96,7 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
         };
 
         $affix.checkPositionWithEventLoop = function() {
-
-          setTimeout(this.checkPosition, 1);
-
+          $timeout(this.checkPosition);
         };
 
         $affix.checkPosition = function() {
