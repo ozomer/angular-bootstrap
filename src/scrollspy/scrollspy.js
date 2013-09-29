@@ -61,6 +61,16 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
 
         };
 
+        $scrollspy.getScrollTop = function () {
+          if(!nodeName(scrollspy[0], 'body')) {
+              return scrollspy[0].scrollTop;
+          }
+          if(typeof $window.pageYOffset != 'undefined') {
+            return $window.pageYOffset;
+          }
+          return ((document.documentElement.clientHeight)?(document.documentElement):(document.body)).scrollTop;
+        };
+
         $scrollspy.$refreshPositions = function() {
           this.refresh();
           this.process();
@@ -107,7 +117,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
 
           if(!offsets.length) return;
 
-          var scrollTop = scrollspy[0].scrollTop + offset;
+          var scrollTop = $scrollspy.getScrollTop() + offset;
           var scrollHeight = scrollspy[0].scrollHeight || bodyEl[0].scrollHeight;
           // var maxScroll = scrollHeight - jqHeight(el[0]);
           // console.warn(scrollTop, scrollHeight);
