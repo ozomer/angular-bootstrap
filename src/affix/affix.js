@@ -95,7 +95,7 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
         };
 
         $affix.checkPositionWithEventLoop = function() {
-          $timeout(this.checkPosition);
+          $timeout($affix.checkPosition);
         };
 
         $affix.checkPosition = function() {
