@@ -77,7 +77,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           slice.call(targetElements)
           .map(function(element) {
             element = jqLite(element);
-            var href = element.data('target') || element.attr('href');
+            var href = element.data('target') || element.attr('data-target') || element.attr('href');
             var targetElement = /^#\w/.test(href) && traversing.find(href);
             // If href not found, activate self
             if(!targetElement && element.attr('id')) {
