@@ -123,7 +123,7 @@ angular.module('ngWidgets.bootstrap.scrollspy', ['ngWidgets.bootstrap.jqlite.deb
           // console.warn(scrollTop, scrollHeight);
 
           if(scrollTop < offsets[0] && activeTarget !== targets[0]) {
-            return this.activate(targets[0]);
+            return $scrollspy.activate(targets[0]);
           }
           // if(scrollTop > maxScroll) {
           //   // return activate(scope, targets[0]);
