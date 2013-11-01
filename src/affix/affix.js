@@ -95,7 +95,12 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
 
         };
 
-        $affix.checkPosition = function() {
+        $affix.checkPosition = function(is_second) {
+          if (!is_second) {
+            // Make every checkPosition call run twice.
+            // Usefull in case the user jumps from the top of the page to the bottom.
+            $timeout(function() { $affix.checkPosition(true) }, 1);
+          }
           // if (!this.$element.is(':visible')) return
 
           var scrollTop = $window.pageYOffset;
