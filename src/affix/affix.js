@@ -76,21 +76,23 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
             // be called only after the DOM is built.
             initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
             $affix.updateOffsets();
+            
+            // Bind events
+            windowEl.on('scroll', $affix.checkPosition);
+            windowEl.on('click', $affix.checkPositionWithEventLoop);
+            
             $affix.checkPosition();
             // The second checkPosition is needed in case the user hits refresh
             // when he is at the bottom of the page.
             $affix.checkPositionWithEventLoop();
           });
-          // Bind events
-          windowEl.on('scroll', this.checkPosition);
-          windowEl.on('click', this.checkPositionWithEventLoop);
         };
 
         $affix.destroy = function() {
 
           // Unbind events
-          windowEl.off('scroll', this.checkPosition);
-          windowEl.off('click', this.checkPositionWithEventLoop);
+          windowEl.off('scroll', $affix.checkPosition);
+          windowEl.off('click', $affix.checkPositionWithEventLoop);
 
         };
 
