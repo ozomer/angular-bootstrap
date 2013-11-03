@@ -71,18 +71,25 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
         }
 
         $affix.init = function() {
-          var deregister = $rootScope.$watch("$viewContentLoaded", function() {
+          var firstLoad = true;
+          $rootScope.$watch("$viewContentLoaded", function() {
             // All initializations that are based on offsets and sizes should
             // be called only after the DOM is built.
-            initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
+            if (firstLoad) {
+              // Updating intialOffsetTop every time content is loaded is problematic, 
+              // because it depends on the element's current top-offset and not on the
+              // original value (i.e. when its location is not fixed).
+              // Hopefully, the content is not loaded above the element, or the 
+              // "offsetParent" mode is set.
+              initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
+              // Bind events
+              windowEl.on('scroll', $affix.checkPosition);
+              windowEl.on('click', $affix.checkPosition);
+              firstLoad = false;
+            } 
             $affix.updateOffsets();
             
-            // Bind events
-            windowEl.on('scroll', $affix.checkPosition);
-            windowEl.on('click', $affix.checkPosition);
-            
             $affix.checkPosition();
-            deregister();
           });
         };
         
