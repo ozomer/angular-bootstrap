@@ -72,7 +72,7 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
 
         $affix.init = function() {
           var firstLoad = true;
-          $rootScope.$watch("$viewContentLoaded", function() {
+          $rootScope.$on("$viewContentLoaded", function() {
             // All initializations that are based on offsets and sizes should
             // be called only after the DOM is built.
             if (firstLoad) {
