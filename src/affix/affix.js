@@ -71,46 +71,32 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
         }
 
         $affix.init = function() {
-          var isInited = false;
-          var isWindowReady = false;
-          var isContentLoaded = false;
-
           function refreshAffix() {
-            // Only when the window is ready and the content is loaded,
-            // we run the initialization process.
-            if (!(isWindowReady && isContentLoaded)) {
-              return;
-            }
-            if (!isInited) {
-              // Updating intialOffsetTop every time content is loaded is problematic, 
-              // because it depends on the element's current top-offset and not on the
-              // original value (i.e. when its location is not fixed).
-              // Hopefully, the content is not loaded above the element, or the 
-              // "offsetParent" mode is set (and then initialOffsetTop is useless).
-              initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
-              windowEl.on('scroll', $affix.checkPosition);
-              windowEl.on('click', $affix.checkPosition);              
-              isInited = true;
-            }
             $affix.updateOffsets();
             $affix.checkPosition();
           }
-          $rootScope.$on("$viewContentLoaded", function() {
-            isContentLoaded = true;
-            refreshAffix();
-          });
           windowEl.ready(function() {
-            isWindowReady = true;
+            // Updating intialOffsetTop every time content is loaded is problematic, 
+            // because it depends on the element's current top-offset and not on the
+            // original value (i.e. when its location is not fixed).
+            // Hopefully, the content is not loaded above the element, or the 
+            // "offsetParent" mode is set (and then initialOffsetTop is useless).
+            initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
+            windowEl.on('scroll', $affix.checkPosition);
+            windowEl.on('click', $affix.checkPosition);              
+            $affix.deregisterViewContentLoaded = $rootScope.$on("$viewContentLoaded", refreshAffix);
             refreshAffix();
           });
         };
+
+        $affix.deregisterViewContentLoaded = function() {};
         
         $affix.destroy = function() {
 
           // Unbind events
           windowEl.off('scroll', $affix.checkPosition);
           windowEl.off('click', $affix.checkPosition);
-
+          $affix.deregisterViewContentLoaded();
         };
         
         $affix.checkPosition = function() {
