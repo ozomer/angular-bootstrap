@@ -10,7 +10,7 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
       offsetTop: 'auto'
     };
 
-    this.$get = function($window, $timeout, dimensions) {
+    this.$get = function($window, $timeout, dimensions, $rootScope) {
 
       var windowEl = jqLite($window);
       var bodyEl = jqLite($window.document.body);
@@ -71,19 +71,18 @@ angular.module('ngWidgets.bootstrap.affix', ['ngWidgets.bootstrap.jqlite.dimensi
         }
 
         $affix.init = function() {
-          windowEl.ready(function() {
-            $timeout(function() {
-              // All initializations that are based on offsets and sizes should
-              // be called only after the DOM is built.
-              initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
-              $affix.updateOffsets();
-              
-              // Bind events
-              windowEl.on('scroll', $affix.checkPosition);
-              windowEl.on('click', $affix.checkPosition);
+          var deregister = $rootScope.$watch("$viewContentLoaded", function() {
+            // All initializations that are based on offsets and sizes should
+            // be called only after the DOM is built.
+            initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
+            $affix.updateOffsets();
             
-              $affix.checkPosition();
-            }, 1);
+            // Bind events
+            windowEl.on('scroll', $affix.checkPosition);
+            windowEl.on('click', $affix.checkPosition);
+            
+            $affix.checkPosition();
+            deregister();
           });
         };
         
